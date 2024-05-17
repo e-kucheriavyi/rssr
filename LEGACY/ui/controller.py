@@ -1,4 +1,5 @@
-from classes import (Request, Response, Event)
+from classes import (Request, Response)
+from ui.Event import Event
 from ui.shared import collide_rect
 
 
@@ -31,11 +32,7 @@ def check_component_effects(request, state, component):
         component.style = style
         if effect.name == 'click' and effect.callback:
             callback = state['methods'][effect.callback]
-            e = Event(
-                state=state['state'],
-                effect=effect,
-                target=component,
-            )
+            e = Event(effect=effect, target=component)
             state['state'] = {**state['state'], **callback(e)}
 
     children = component.get_children(state)
