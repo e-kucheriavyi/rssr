@@ -1,7 +1,7 @@
 from ui.types import validate_byte
 
 
-def set_color(value: int|tuple) -> tuple:
+def set_color(value) -> tuple:
     if type(value) is int:
         validate_byte(value)
         return (value, value, value, 255)
