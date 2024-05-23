@@ -1,11 +1,11 @@
-from ui.Event import Event
-from ui.shared import get_element_by_id
+from classs.ui_event import UIEvent
+from shared import get_element_by_id
 
 
 class Page:
     _title = ''
     _focused = ''
-    _state = ''
+    _state = None
 
     _methods: dict = None
     _root = None
@@ -39,7 +39,7 @@ class Page:
     def methods(self):
         return self._methods
 
-    def call(self, method_name: str, event: Event):
+    def call(self, method_name: str, event: UIEvent):
         method = self._methods[method_name]
         event.state = self._state
         new_state = method(event)
@@ -54,3 +54,10 @@ class Page:
             raise Exception(f'["{self._title}" page]. Invalid focused element ID: {value}')
         self._focused = value
 
+    def instantiate(self):
+        return self.__class__(
+            title=self._title,
+            state=self._state,
+            root=self._root.instantiate(),
+            methods=self._methods,
+        )

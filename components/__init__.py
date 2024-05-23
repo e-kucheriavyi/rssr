@@ -1,1 +1,1 @@
-from components.Component import Component
+from components.component import Component
