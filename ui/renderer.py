@@ -9,12 +9,7 @@ def create_image(w, h):
 
 
 def normalize_color(color: tuple) -> tuple:
-    return (
-        color[0] / 255,
-        color[1] / 255,
-        color[2] / 255,
-        color[3] / 255,
-    )
+    return (color[0] / 255, color[1] / 255, color[2] / 255, color[3] / 255)
 
 
 def draw_rect(image, x, y, w, h, color):
@@ -29,14 +24,7 @@ def draw_rect(image, x, y, w, h, color):
     return image
 
 
-def render_text(
-    request,
-    state,
-    image,
-    component,
-    h_align=pixie.CENTER_ALIGN,
-    v_align=pixie.CENTER_ALIGN
-):
+def render_text(request, state, image, component, h_align=pixie.CENTER_ALIGN, v_align=pixie.CENTER_ALIGN):
     font = pixie.read_font('static/Roboto-Medium.ttf')
     font.size = 20
 
@@ -68,14 +56,7 @@ def render_component(request, state, image, component):
 
     normalized_color = normalize_color(color)
 
-    image = draw_rect(
-        image,
-        rect['x'],
-        rect['y'],
-        rect['w'],
-        rect['h'],
-        normalized_color,
-    )
+    image = draw_rect(image, rect['x'], rect['y'], rect['w'], rect['h'], normalized_color)
 
     if component.name in ['text', 'button', 'input']:
         h_align = pixie.LEFT_ALIGN if component.name == 'input' else pixie.CENTER_ALIGN

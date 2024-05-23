@@ -29,7 +29,6 @@ INDEX_PAGE = {
             'padding': 4,
             'direction': 'row',
             'gap': 8,
-            'bg': (33, 33, 33, 255),
         },
         children=[
             Layout(id='spacing_left'),
@@ -39,7 +38,6 @@ INDEX_PAGE = {
                     'padding': 4,
                     'direction': 'column',
                     'gap': 8,
-                    'bg': (33, 33, 33, 255),
                 },
                 children=[
                     Text(
