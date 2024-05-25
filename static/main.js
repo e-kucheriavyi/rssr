@@ -1,4 +1,4 @@
-const ENDPOINT = `ws://localhost:8000/ws`
+const ENDPOINT = `ws://kucheriavyi.ru:8832/ws`
 const W = window
 const D = W.document
 

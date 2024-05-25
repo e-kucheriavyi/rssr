@@ -1,7 +1,7 @@
 from ui.types.positive_int import validate_positive_int
 
 
-def set_trbl(value: int|tuple) -> tuple:
+def set_trbl(value) -> tuple:
     '''
     trbl == top_right_bottom_left
     Sets value for 4-directional params. E. g. padding.
