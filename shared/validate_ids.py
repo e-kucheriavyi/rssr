@@ -1,4 +1,8 @@
+'''IDs validator'''
+
+
 def validate_ids(root, state, ids = None):
+    '''Validating that all components have IDs and that all IDs are unique'''
     if not root.id:
         raise Exception(f'Component without ID: {root.name}')
 
@@ -12,6 +16,6 @@ def validate_ids(root, state, ids = None):
     children = root.get_children(state)
 
     for child in children:
-        validate_root(child, state, ids)
+        validate_ids(child, state, ids)
 
     return True

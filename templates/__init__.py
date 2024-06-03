@@ -1,1 +1,3 @@
-from templates.html import html
+'''Templates for serving. Such as html or css'''
+
+from .html import HTML

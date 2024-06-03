@@ -1,4 +1,6 @@
-html = '''<!DOCTYPE html>
+'''Any page HTML code'''
+
+HTML = '''<!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8"/>

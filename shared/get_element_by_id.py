@@ -1,11 +1,14 @@
-from components import Component
+'''Finging element by it's ID'''
+
+# from components import Component
 
 
-def get_element_by_id(root: Component, id: str):
-    if root.id == id:
+def get_element_by_id(root, element_id: str):
+    '''Finging element by it's ID'''
+    if root.id == element_id:
         return root
 
     for child in root.get_children():
-        return get_element_by_id(child, id)
+        return get_element_by_id(child, element_id)
 
-    return None
+    raise ValueError(f'Component with id `{element_id}` not found')

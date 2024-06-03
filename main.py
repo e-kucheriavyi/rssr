@@ -1,40 +1,66 @@
+'''Entry point for RSSR-app'''
+
 import json
 
 from fastapi import FastAPI, WebSocket
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 
-# from ui.controller import update_state
-# from ui.renderer import render_response
-# from classes import Request, Response
+# from rssr.ui.controller import update_state
+# from rssr.ui.renderer import render_response
+# from rssr.classes import Request, Response
 
-from pages import PAGES
+from rssr.classes import (Request, Response, State)
+from rssr.ui import (Client, ClientEvent)
+from rssr.pages import PAGES
+from rssr.templates import HTML
 
-from templates import html
+
+app = FastAPI()
+app.mount('/static', StaticFiles(directory='static'), name='static')
+
+USER_STATES = []
+
+
+def get_state(user_id: str, page_slug: str):
+    '''Getting or creating user's state'''
+    for s in USER_STATES:
+        if s.user_id == user_id:
+            return s
+
+    state = State(user_id=user_id, page=page_slug)
+
+    USER_STATES.append(state)
+
+    return state
 
 
 def prepare_page(slug: str):
+    '''Preparing page's HTML-template'''
     if not slug in PAGES:
         return '404'
 
     p = PAGES[slug]
 
-    template = html.replace('%TITLE%', p['title'])
+    template = HTML.replace('%TITLE%', p['title'])
     return HTMLResponse(template)
 
 
 @app.get('/')
 async def home():
+    '''Serving HTML-template'''
     return prepare_page('/')
 
 
 @app.get('/{slug}')
 async def page(slug: str):
+    '''Serving HTML-template by slug'''
     return prepare_page(f'/{slug}')
 
 
 @app.websocket('/ws')
 async def websocket_endpoint(ws: WebSocket):
+    '''Communicating with client via websockets'''
     await ws.accept()
 
     while True:
@@ -53,7 +79,7 @@ async def websocket_endpoint(ws: WebSocket):
         )
         state = State() # TODO
         request = Request(
-            id=data['client']['id'],
+            user_id=data['client']['id'],
             client=client,
             event=event,
             state=state,
@@ -63,7 +89,7 @@ async def websocket_endpoint(ws: WebSocket):
         image = render_response(request, new_state) # TODO
 
         response = Response(image, 0, 0) # TODO
-        set_user_state(request.id, new_state) # TODO
+        set_user_state(request.user_id, new_state) # TODO
 
         if not response:
             continue

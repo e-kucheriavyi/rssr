@@ -1,5 +1,6 @@
-from classs.ui_event import UIEvent
-from shared import get_element_by_id
+from rssr.ui.ui_event import UIEvent
+from rssr.ui.components import Component
+from rssr.shared import get_element_by_id
 
 
 class Page:
@@ -10,19 +11,19 @@ class Page:
     _methods: dict = None
     _root = None
 
-    def __init__(self, title: str, root, state: dict = None, methods: list = None):
+    def __init__(self, title: str, root: Component, state: dict = None, methods: dict = None):
         if not title:
-            raise Exception('Page must have title')
+            raise ValueError('Page must have title')
         self._title = title
 
         if not root:
-            raise Exception(f'Page "{title}" must have root component')
+            raise ValueError(f'Page `{title}` must have root component')
 
         self._root = root
 
         self._state = {**state} if state else {}
 
-        self._methods = methods if methods else []
+        self._methods = methods if methods else {}
 
     @property
     def state(self):
@@ -40,24 +41,18 @@ class Page:
         return self._methods
 
     def call(self, method_name: str, event: UIEvent):
+        '''Calling one of page methods and mutationg it's state'''
         method = self._methods[method_name]
         event.state = self._state
         new_state = method(event)
         self.set_state(new_state)
 
     @property
-    def focused(self):
+    def focused(self) -> str:
+        '''Id of focused component'''
         return self._focused
 
     def focus(self, value: str):
         if not get_element_by_id(self._root, value):
-            raise Exception(f'["{self._title}" page]. Invalid focused element ID: {value}')
+            raise KeyError(f'["{self._title}" page]. Invalid focused element ID: {value}')
         self._focused = value
-
-    def instantiate(self):
-        return self.__class__(
-            title=self._title,
-            state=self._state,
-            root=self._root.instantiate(),
-            methods=self._methods,
-        )
