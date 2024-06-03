@@ -27,7 +27,7 @@ class UI {
 		this.ws = new WebSocket(ENDPOINT)
 
 		this.listen()
-		this.resize(null)
+		this.resize({})
 	}
 
 	delayer = null
@@ -67,19 +67,19 @@ class UI {
 	resize(e) {
 		this.root.width = W.innerWidth
 		this.root.height = W.innerHeight
-		e && this.sendDelayed({ type: 'resize' })
+		e && this.sendDelayed({ type: 'resize', x: 0, y: 0, value: '' })
 	}
 
 	click(e) {
-		this.send({ type: 'click', x: e.clientX, y: e.clientY })
+		this.send({ type: 'click', x: e.clientX, y: e.clientY, value: '' })
 	}
 
 	press(e) {
-		this.send({ type: 'key', value: e.key })
+		this.send({ type: 'key', x: 0, y: 0, value: e.key })
 	}
 
 	move(e) {
-		this.sendDelayed({ type: 'move', x: e.clientX, y: e.clientY })
+		this.sendDelayed({ type: 'move', x: e.clientX, y: e.clientY, value: '' })
 	}
 }
 

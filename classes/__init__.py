@@ -1,3 +1,5 @@
-from classes.request import Request
-from classes.response import Response
-from classes.event import Event
+'''Common classes'''
+
+from .state import State
+from .page import Page
+from .request import Request

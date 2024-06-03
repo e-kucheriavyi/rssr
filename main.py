@@ -1,101 +1,95 @@
+'''Entry point for RSSR-app'''
+
 import json
 
 from fastapi import FastAPI, WebSocket
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 
-from ui.controller import update_state
-from ui.renderer import render_response
-from classes import Request, Response
+# from rssr.ui.controller import update_state
+# from rssr.ui.renderer import render_response
+# from rssr.classes import Request, Response
 
-from pages import PAGES
+from rssr.classes import (Request, Response, State)
+from rssr.ui import (Client, ClientEvent)
+from rssr.pages import PAGES
+from rssr.templates import HTML
 
 
 app = FastAPI()
-
 app.mount('/static', StaticFiles(directory='static'), name='static')
 
-html = '''<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8"/>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-	<title>%TITLE%</title>
-	<style>body,.root{width:100%;height:100%;overflow:hidden;padding:0;margin:0;background:#333;}</style>
-</head>
-<body>
-	<canvas class="root" id="root"></canvas>
-	<script src="/static/main.js"></script>
-</body>
-</html>
-'''
+USER_STATES = []
 
 
-USER_STATES = {}
+def get_state(user_id: str, page_slug: str):
+    '''Getting or creating user's state'''
+    for s in USER_STATES:
+        if s.user_id == user_id:
+            return s
 
+    state = State(user_id=user_id, page=page_slug)
 
-def set_parent(component, parent=None):
-    component.parent = parent
-
-    children = component.get_children()
-
-    for child in children:
-        set_parent(child, component)
-
-
-def get_user_state(id: str, page: str) -> dict:
-    if id not in USER_STATES:
-        USER_STATES[id] = {'page': page, **PAGES[page]}
-
-    state = USER_STATES[id]
-
-    if state['page'] != page:
-        state = {'page': page, **PAGES[page]}
-        USER_STATES[id] = state
-
-    set_parent(state['root'], None)
+    USER_STATES.append(state)
 
     return state
 
 
-def set_user_state(id: str, state: str):
-    USER_STATES[id] = state
-
-
 def prepare_page(slug: str):
+    '''Preparing page's HTML-template'''
     if not slug in PAGES:
         return '404'
 
     p = PAGES[slug]
 
-    template = html.replace('%TITLE%', p['title'])
+    template = HTML.replace('%TITLE%', p['title'])
     return HTMLResponse(template)
 
 
 @app.get('/')
 async def home():
+    '''Serving HTML-template'''
     return prepare_page('/')
 
 
 @app.get('/{slug}')
 async def page(slug: str):
+    '''Serving HTML-template by slug'''
     return prepare_page(f'/{slug}')
 
 
 @app.websocket('/ws')
 async def websocket_endpoint(ws: WebSocket):
+    '''Communicating with client via websockets'''
     await ws.accept()
 
     while True:
         d = await ws.receive_text()
-        request = Request(json.loads(d))
+        data = json.loads(d)
 
-        state = get_user_state(request.id, request.page)
-        new_state = update_state(request, state)
-        image = render_response(request, new_state)
+        client = Client(
+            width=data['client']['w'],
+            height=data['client']['h'],
+        )
+        event = ClientEvent(
+            name=data['event']['type'],
+            x=data['event']['x'],
+            y=data['event']['y'],
+            value=data['event']['value'],
+        )
+        state = State() # TODO
+        request = Request(
+            user_id=data['client']['id'],
+            client=client,
+            event=event,
+            state=state,
+        )
 
-        response = Response(image, 0, 0)
-        set_user_state(request.id, new_state)
+        new_state = update_state(request, state) # TODO
+        image = render_response(request, new_state) # TODO
+
+        response = Response(image, 0, 0) # TODO
+        set_user_state(request.user_id, new_state) # TODO
 
         if not response:
             continue

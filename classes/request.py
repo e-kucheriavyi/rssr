@@ -1,45 +1,59 @@
+from rssr.ui.client import Client
+from rssr.ui.client_event import ClientEvent
+from rssr.classes.state import State
+
+
 class Request:
-    id: str = ''
-    page: str = ''
+    _user_id = ''
 
-    width: int = 0
-    height: int = 0
+    _client = None
+    _event = None
 
-    event_type: str = ''
-    value: str = ''
-    x: int = 0
-    y: int = 0
+    _state = None
 
-    raw: dict = None
+    _meta = None
 
-    filename: str = ''
+    _rects_by_id = None
 
-    _rects_by_id: dict = None
+    def __init__(
+        self,
+        user_id: str,
+        state: State,
+        client: Client,
+        event: ClientEvent,
+    ):
+        if not user_id or not isinstance(user_id, str):
+            raise ValueError(f'Invalid request id: {id}')
+        self._user_id = user_id
 
-    def __init__(self, data):
-        self.raw = data
+        if not client or not isinstance(client, Client):
+            raise ValueError(f'Invalid request client: {client}')
+        self._client = client
 
-        self.id = data['client']['id']
-        self.page = data['client']['page']
-        self.width = data['client']['w']
-        self.height = data['client']['h']
-        self.event_type = data['event']['type']
-        if self.event_type == 'key':
-            self.value = data['event']['value']
-        if self.event_type in ['move', 'click']:
-            self.x = data['event']['x']
-            self.y = data['event']['y']
-
-        self.filename = f'sessions/{self.id}.png'
+        if not event or not isinstance(event, ClientEvent):
+            raise ValueError(f'Invalid request event: {event}')
+        self._event = event
 
         self._rects_by_id = {}
+
+    @property
+    def user_id(self) -> str:
+        return self._user_id
+
+    @property
+    def client(self) -> Client:
+        return self._client
+
+    @property
+    def event(self) -> ClientEvent:
+        return self._event
 
     @property
     def rects_by_id(self):
         return self._rects_by_id
 
-    def get_rect(self, id):
-        return self._rects_by_id[id]
+    def get_rect(self, rect_id: str):
+        return self._rects_by_id[rect_id]
 
-    def add_rect(self, id, rect):
-        self._rects_by_id[id] = rect
+    def add_rect(self, rect_id: str, rect):
+        self._rects_by_id[rect_id] = rect
